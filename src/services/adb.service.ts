@@ -43,7 +43,7 @@ export class AdbService {
       // Some ADB commands write non-fatal warnings to stderr. 
       // We'll throw only if the command truly failed or we get a severe error.
       if (stderr && stderr.toLowerCase().includes('error')) {
-         throw new Error(`ADB Command Error: ${stderr.trim()}`);
+        throw new Error(`ADB Command Error: ${stderr.trim()}`);
       }
       
       return stdout.trim();
