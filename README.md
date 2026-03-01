@@ -141,6 +141,85 @@ curl -X POST http://localhost:8000/tv/app/com.netflix.ninja \
 
 ---
 
+## ⚡ API Avanzada (Fase 7)
+
+### 5. Control Multimedia y Volumen
+
+Controla la reproducción o el audio sin importar qué app esté encendida.
+
+**Endpoint:** `POST /tv/media/:control`
+_Acciones Válidas:_ `playpause`, `next`, `prev`, `volup`, `voldown`, `mute`.
+
+```bash
+curl -X POST http://localhost:8000/tv/media/volup \
+     -H "x-api-key: my_super_secret_api_key_123"
+```
+
+### 6. Escribir Texto en Pantalla
+
+Si estás en una barra de búsqueda del TV (como en YouTube), en lugar de usar el teclado en pantalla letra por letra, manda una cadena de texto directa.
+
+**Endpoint:** `POST /tv/text`
+
+```bash
+curl -X POST http://localhost:8000/tv/text \
+     -H "x-api-key: my_super_secret_api_key_123" \
+     -H "Content-Type: application/json" \
+     -d '{"text": "mi busqueda larga"}'
+```
+
+### 7. Control de Energía (Power)
+
+Suspende (apaga la pantalla) o despierta el Fire TV de forma remota.
+
+**Endpoint:** `POST /tv/power/:action`
+_Acciones Válidas:_ `sleep`, `awake`, `toggle`.
+
+```bash
+curl -X POST http://localhost:8000/tv/power/sleep \
+     -H "x-api-key: my_super_secret_api_key_123"
+```
+
+### 8. Abrir enlaces web (URLs)
+
+Lanza el navegador web a una URL específica u obligatorya que una app capture el Deep Link nativamente.
+
+**Endpoint:** `POST /tv/url`
+
+```bash
+curl -X POST http://localhost:8000/tv/url \
+     -H "x-api-key: my_super_secret_api_key_123" \
+     -H "Content-Type: application/json" \
+     -d '{"url": "https://www.google.com"}'
+```
+
+### 9. Asistente de Voz / Comandos Inteligentes (Alexa)
+
+Si tienes algo complejo en mente, en lugar de interactuar con botones o aplicaciones, inyecta comandos semánticos y de texto directamente al motor global de Alexa / Android TV. (Requiere apretar Enter `keyevent 66` automáticamente luego de enviado, la API ya lo hace).
+
+**Endpoint:** `POST /tv/alexa`
+
+```bash
+curl -X POST http://localhost:8000/tv/alexa \
+     -H "x-api-key: my_super_secret_api_key_123" \
+     -H "Content-Type: application/json" \
+     -d '{"query": "reproduce the office en prime video"}'
+```
+
+### 10. Capturar la Pantalla (Screenshot)
+
+Descarga la imagen en vivo del televisor directamente a tu computadora central en formato binario.
+
+**Endpoint:** `GET /tv/screenshot`
+
+```bash
+curl -X GET http://localhost:8000/tv/screenshot \
+     -H "x-api-key: my_super_secret_api_key_123" \
+     --output mi_captura.png
+```
+
+---
+
 ## ⚠️ Troubleshooting (Solución de problemas)
 
 - **Connection Refused:** Significa que el Fire TV no tiene el "ADB Debugging" activado, o que la IP configurada en `.env` es incorrecta.
