@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  tv-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tv-microservice
+    # WARNING: network_mode: host is crucial here
+    # It allows the container to send broadcast packets to find the TV 
+    # and ensures adb connect <IP> works without complex routing
+    network_mode: "host"
+    environment:
+      - PORT=8000
+      - FIRE_TV_IP=${FIRE_TV_IP:-192.168.1.100}
+      - API_KEY=${API_KEY:-my_super_secret_api_key_123}
+    volumes:
+      # CRITICAL: Persists the RSA keys ADB generates. 
+      # Without this, the TV will revoke authorization every time the container restarts
+      # requiring manual approval click on the TV screen again.
+      - adb_keys:/root/.android/
+    restart: unless-stopped
+
+volumes:
+  adb_keys:
+    name: tv-microservice-adb-keys
