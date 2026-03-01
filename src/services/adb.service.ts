@@ -21,7 +21,7 @@ export class AdbService {
     
     try {
       const { stdout, stderr } = await execPromise(`adb connect ${this.ip}:5555`, { timeout: 10000 });
-      if (stderr && !stderr.includes('already connected')) {
+      if (stderr && !stderr.includes('already connected') && !stderr.includes('daemon')) {
         throw new Error(`ADB Connect Error: ${stderr}`);
       }
       return stdout.trim();
