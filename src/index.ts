@@ -20,6 +20,6 @@ app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({ success: true, message: 'TV Microservice is running' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server started on http://localhost:${PORT}`);
+app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`Server started on http://0.0.0.0:${PORT}`);
 });

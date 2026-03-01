@@ -6,10 +6,10 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: tv-microservice
-    # WARNING: network_mode: host is crucial here
-    # It allows the container to send broadcast packets to find the TV 
-    # and ensures adb connect <IP> works without complex routing
-    network_mode: "host"
+    # Using explicit port mapping instead of host network to ensure 
+    # compatibility with Docker Desktop on Linux/Mac/Windows.
+    ports:
+      - "${PORT:-8000}:8000"
     environment:
       - PORT=8000
       - FIRE_TV_IP=${FIRE_TV_IP:-192.168.1.100}
