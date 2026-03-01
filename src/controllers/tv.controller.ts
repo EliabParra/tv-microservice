@@ -171,24 +171,23 @@ export const invokeAlexa = async (req: Request, res: Response): Promise<void> =>
 // Screenshot uses a different signature because we pipe the buffer directly to Express response
 export const takeScreenshot = async (req: Request, res: Response): Promise<void> => {
   try {
-    // We cannot use adbService.executeCommand because it returns a string (utf-8)
-    // Screencap is raw binary PNG data. We must construct a native shell command.
     const ip = process.env.FIRE_TV_IP || '';
     if (!ip) throw new Error('FIRE_TV_IP is not configured');
 
-    const { exec } = require('child_process');
+    const { spawn } = require('child_process');
     res.setHeader('Content-Type', 'image/png');
     res.setHeader('Content-Disposition', 'inline; filename="screenshot.png"');
 
-    // Exec-out gets stdout binary as stream without shell terminal emulation corruption
-    const child = exec(`adb -s ${ip}:5555 exec-out screencap -p`);
+    // spawn es seguro para raw binary streams de gran tamaño, no tiene límite de `maxBuffer` como exec
+    const child = spawn('adb', ['-s', `${ip}:5555`, 'exec-out', 'screencap', '-p']);
     
     child.stdout.pipe(res);
-    child.stderr.on('data', (data: string) => {
-        console.error('ADB Screencap Error Stream:', data);
+    
+    child.stderr.on('data', (data: Buffer) => {
+        console.error('ADB Screencap Error Stream:', data.toString());
     });
     
-    child.on('exit', (code: number) => {
+    child.on('close', (code: number) => {
       if (code !== 0) {
         if (!res.headersSent) {
           res.status(500).json({ success: false, error: 'Failed to capture screen' });
