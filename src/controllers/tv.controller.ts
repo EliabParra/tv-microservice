@@ -154,16 +154,28 @@ export const invokeAlexa = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    // This intent explicitly launches Android TV's global voice search / Alexa with pre-filled text
-    const command = `am start -a android.intent.action.SEARCH -e query "${query}"`;
-    await adbService.executeCommand(command);
+    const sanitizedQuery = query.replace(/ /g, '%s');
+    const escapedQuery = sanitizedQuery.replace(/'/g, "\\'");
+
+    // 1. Abrimos la aplicación global de Búsqueda del Fire TV nativamente
+    await adbService.executeCommand(`monkey -p fast.search.fire -c android.intent.category.LAUNCHER 1`);
     
-    // Simulate pressing "ENTER" to execute the search automatically
+    // 2. Esperamos a que la interfaz de búsqueda esté en pantalla enfocada
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    
+    // 3. Inyectamos la cadena de texto de la búsqueda virtual
+    await adbService.executeCommand(`input text '${escapedQuery}'`);
+    
+    // 4. Simulamos apretar la tecla "ENTER" / Buscar
     await adbService.executeCommand(`input keyevent 66`);
 
-    res.status(200).json({ success: true, message: `Alexa query dispatched: ${query}` });
+    // 5. Un enter extra por si Amazon Search requiere ir a los resultados 
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await adbService.executeCommand(`input keyevent 66`);
+
+    res.status(200).json({ success: true, message: `Voice/Search query dispatched: ${query}` });
   } catch (error: any) {
-    console.error('ADB Alexa Error:', error.message);
+    console.error('ADB Alexa/Search Error:', error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 };
