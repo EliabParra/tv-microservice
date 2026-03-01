@@ -15,12 +15,7 @@ services:
       - FIRE_TV_IP=${FIRE_TV_IP:-192.168.1.100}
       - API_KEY=${API_KEY:-my_super_secret_api_key_123}
     volumes:
-      # CRITICAL: Persists the RSA keys ADB generates. 
-      # Without this, the TV will revoke authorization every time the container restarts
-      # requiring manual approval click on the TV screen again.
-      - adb_keys:/root/.android/
+      # CRITICAL: We bind mount the host's ~/.android folder so Docker 
+      # uses the exact same RSA key that the TV already authorized.
+      - ~/.android:/root/.android/
     restart: unless-stopped
-
-volumes:
-  adb_keys:
-    name: tv-microservice-adb-keys
