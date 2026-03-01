@@ -193,20 +193,7 @@ curl -X POST http://localhost:8000/tv/url \
      -d '{"url": "https://www.google.com"}'
 ```
 
-### 9. Asistente de Voz / Comandos Inteligentes (Alexa)
-
-Si tienes algo complejo en mente, en lugar de interactuar con botones o aplicaciones, inyecta comandos semánticos y de texto directamente al motor global de Alexa / Android TV. (Requiere apretar Enter `keyevent 66` automáticamente luego de enviado, la API ya lo hace).
-
-**Endpoint:** `POST /tv/alexa`
-
-```bash
-curl -X POST http://localhost:8000/tv/alexa \
-     -H "x-api-key: my_super_secret_api_key_123" \
-     -H "Content-Type: application/json" \
-     -d '{"query": "reproduce the office en prime video"}'
-```
-
-### 10. Capturar la Pantalla (Screenshot)
+### 9. Capturar la Pantalla (Screenshot)
 
 Descarga la imagen en vivo del televisor directamente a tu computadora central en formato binario.
 

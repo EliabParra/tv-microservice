@@ -146,39 +146,6 @@ export const openUrl = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const invokeAlexa = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { query } = req.body;
-    if (!query || typeof query !== 'string') {
-      res.status(400).json({ success: false, error: 'String "query" is required in body' });
-      return;
-    }
-
-    const sanitizedQuery = query.replace(/ /g, '%s');
-    const escapedQuery = sanitizedQuery.replace(/'/g, "\\'");
-
-    // 1. Abrimos la aplicación global de Búsqueda del Fire TV nativamente
-    await adbService.executeCommand(`monkey -p fast.search.fire -c android.intent.category.LAUNCHER 1`);
-    
-    // 2. Esperamos a que la interfaz de búsqueda esté en pantalla enfocada
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    
-    // 3. Inyectamos la cadena de texto de la búsqueda virtual
-    await adbService.executeCommand(`input text '${escapedQuery}'`);
-    
-    // 4. Simulamos apretar la tecla "ENTER" / Buscar
-    await adbService.executeCommand(`input keyevent 66`);
-
-    // 5. Un enter extra por si Amazon Search requiere ir a los resultados 
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await adbService.executeCommand(`input keyevent 66`);
-
-    res.status(200).json({ success: true, message: `Voice/Search query dispatched: ${query}` });
-  } catch (error: any) {
-    console.error('ADB Alexa/Search Error:', error.message);
-    res.status(500).json({ success: false, error: error.message });
-  }
-};
 
 // Screenshot uses a different signature because we pipe the buffer directly to Express response
 export const takeScreenshot = async (req: Request, res: Response): Promise<void> => {
