@@ -163,12 +163,14 @@ export const takeScreenshot = async (req: Request, res: Response): Promise<void>
     const deviceIp: string = res.locals.deviceIp;
 
     const { spawn } = require('child_process');
-    res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Content-Disposition', 'inline; filename="screenshot.png"');
-
     const child = spawn('adb', ['-s', `${deviceIp}:5555`, 'exec-out', 'screencap', '-p']);
 
-    child.stdout.pipe(res);
+    // Bufferea toda la imagen antes de enviar (necesario para Content-Length + CORS en web)
+    const chunks: Buffer[] = [];
+
+    child.stdout.on('data', (chunk: Buffer) => {
+      chunks.push(chunk);
+    });
 
     child.stderr.on('data', (data: Buffer) => {
       console.error('ADB Screencap Error Stream:', data.toString());
@@ -179,7 +181,14 @@ export const takeScreenshot = async (req: Request, res: Response): Promise<void>
         if (!res.headersSent) {
           res.status(500).json({ success: false, error: 'Failed to capture screen' });
         }
+        return;
       }
+
+      const imageBuffer = Buffer.concat(chunks);
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Content-Length', imageBuffer.length.toString());
+      res.setHeader('Content-Disposition', 'inline; filename="screenshot.png"');
+      res.status(200).send(imageBuffer);
     });
   } catch (error: any) {
     console.error('ADB Screencap Error:', error.message);
