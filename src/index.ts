@@ -9,7 +9,11 @@ import tvRoutes from './routes/tv.routes';
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'x-api-key', 'x-device-ip', 'Authorization'],
+}));
 app.use(express.json());
 
 // Routes
