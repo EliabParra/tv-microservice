@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   connectDevice, sendKeyEvent, openApp,
   inputText, mediaControl, powerControl, openUrl, takeScreenshot,
+  volumeControl, muteControl,
 } from '../controllers/tv.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
 import { deviceMiddleware } from '../middleware/device.middleware';
@@ -25,5 +26,9 @@ router.post('/media/:control', mediaControl);
 router.post('/power/:action', powerControl);
 router.post('/url', openUrl);
 router.get('/screenshot', takeScreenshot);
+
+// Volume Controls (usan service call audio, no keyevent)
+router.post('/volume/:action', volumeControl);
+router.post('/mute', muteControl);
 
 export default router;

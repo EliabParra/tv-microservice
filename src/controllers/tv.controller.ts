@@ -188,3 +188,41 @@ export const takeScreenshot = async (req: Request, res: Response): Promise<void>
     }
   }
 };
+
+export const volumeControl = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { action } = req.params;
+    const deviceIp: string = res.locals.deviceIp;
+
+    const directionMap: Record<string, number> = {
+      up: 1,
+      down: -1,
+    };
+
+    const direction = directionMap[String(action).toLowerCase()];
+    if (direction === undefined) {
+      res.status(400).json({
+        success: false,
+        error: `Invalid volume action. Valid options: up, down`,
+      });
+      return;
+    }
+
+    const result = await adbService.adjustVolume(deviceIp, direction);
+    res.status(200).json({ success: true, message: `Volume ${action}`, data: result });
+  } catch (error: any) {
+    console.error('ADB Volume Error:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const muteControl = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const deviceIp: string = res.locals.deviceIp;
+    const result = await adbService.toggleMute(deviceIp);
+    res.status(200).json({ success: true, message: 'Mute toggled', data: result });
+  } catch (error: any) {
+    console.error('ADB Mute Error:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
