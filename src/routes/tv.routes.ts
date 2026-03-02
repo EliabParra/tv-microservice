@@ -1,21 +1,25 @@
 import { Router } from 'express';
-import { 
+import {
   connectDevice, sendKeyEvent, openApp,
-  inputText, mediaControl, powerControl, openUrl, takeScreenshot 
+  inputText, mediaControl, powerControl, openUrl, takeScreenshot,
 } from '../controllers/tv.controller';
 import { authMiddleware } from '../middleware/auth.middleware';
+import { deviceMiddleware } from '../middleware/device.middleware';
 
 const router = Router();
 
-// Protect ALL routes in this router with API Key auth
+// 1. Validar API Key en todas las rutas
 router.use(authMiddleware);
 
-// Base Controls (Fase 4)
+// 2. Validar y extraer la IP del dispositivo Fire TV (header x-device-ip)
+router.use(deviceMiddleware);
+
+// Base Controls
 router.post('/connect', connectDevice);
 router.post('/keyevent/:code', sendKeyEvent);
 router.post('/app/:package', openApp);
 
-// Advanced Controls (Fase 7)
+// Advanced Controls
 router.post('/text', inputText);
 router.post('/media/:control', mediaControl);
 router.post('/power/:action', powerControl);
